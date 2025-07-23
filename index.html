@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CharizardStrategy - The Premier Charizard Accumulator</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: flicker 3s infinite;
+            position: relative;
+        }
+
+        .corner-gif {
+            position: absolute;
+            top: 0;
+            width: 80px;
+            height: auto;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .corner-gif-left {
+            left: 0;
+            transform: scaleX(-1);
+        }
+
+        .corner-gif-right {
+            right: 0;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: #ff4444;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 10px;
+            transition: all 0.3s ease;
+            border: 2px solid #ff6666;
+        }
+
+        .nav-btn:hover {
+            background: #ff6666;
+            transform: translateY(-2px);
+        }
+
+        .x-btn {
+            background: #000;
+            border-color: #333;
+        }
+
+        .x-btn:hover {
+            background: #333;
+        }
+
+        .x-icon {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: clamp(24px, 5vw, 48px);
+            text-shadow: 3px 3px 0px #000;
+            margin-bottom: 20px;
+        }
+
+        .charizard-text {
+            color: #ff8800;
+        }
+
+        .strategy-text {
+            color: #ffffff;
+        }
+
+        .tagline {
+            font-size: 12px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            margin-top: 10px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .hero-image {
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            max-width: 100%;
+            height: auto;
+            filter: drop-shadow(0 0 20px #ff3333);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 2px solid #ff3333;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 51, 51, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 30px rgba(255, 51, 51, 0.5);
+        }
+
+                 .stat-value {
+             font-size: 28px;
+             color: #00ff00;
+             margin: 20px 0;
+             text-shadow: 0 0 10px #00ff00;
+         }
+
+        .stat-label {
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .holdings-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #ff3333;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .card-item {
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid #ff4444;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card-item:hover {
+            border-color: #ff6666;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 68, 68, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100%;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 90vh;
+            width: auto;
+            height: auto;
+            border-radius: 10px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            object-fit: contain;
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #ff4444;
+        }
+
+        .ca-box {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff8800;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        .ca-label {
+            color: #ff8800;
+            font-size: 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .ca-address {
+            background: rgba(255, 136, 0, 0.1);
+            border: 1px solid #ff8800;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 9px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            word-break: break-all;
+            margin-bottom: 5px;
+        }
+
+        .ca-address:hover {
+            background: rgba(255, 136, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .ca-copy-text {
+            font-size: 8px;
+            color: #aaa;
+            transition: color 0.3s ease;
+        }
+
+        .card-image {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border: 2px solid #ff4444;
+        }
+
+        .card-name {
+            color: #ff6666;
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card-details {
+            font-size: 10px;
+            line-height: 2;
+        }
+
+        .card-quantity {
+            color: #00ff00;
+        }
+
+        .card-value {
+            color: #ffcc00;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .gallery-item {
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid #ff4444;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 68, 68, 0.3);
+        }
+
+        .gallery-image {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .gallery-caption {
+            font-size: 10px;
+            color: #ff6666;
+            font-weight: bold;
+        }
+
+        .energy-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            background: rgba(255, 68, 68, 0.1);
+            border: 2px solid #ff4444;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        .energy-gif {
+            width: 80px;
+            height: auto;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(0 0 10px #ff4444);
+        }
+
+        .energy-text {
+            text-align: center;
+        }
+
+        .energy-text p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            font-size: 10px;
+            color: #666;
+            border-top: 2px solid #333;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .neon-border {
+            animation: neon 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes neon {
+            from {
+                box-shadow: 0 0 10px #ff3333, 0 0 20px #ff3333, 0 0 30px #ff3333;
+            }
+            to {
+                box-shadow: 0 0 5px #ff3333, 0 0 10px #ff3333, 0 0 15px #ff3333;
+            }
+        }
+
+        .counter {
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .card-name {
+                font-size: 12px;
+            }
+            
+            .card-details {
+                font-size: 9px;
+            }
+            
+            .corner-gif {
+                width: 50px;
+            }
+            
+            .nav-buttons {
+                position: relative;
+                top: 10px;
+                right: 10px;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 9px;
+            }
+            
+            .card-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .card-image {
+                max-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    
+    <div class="container">
+                 <nav class="nav-buttons">
+             <a href="#holdings" class="nav-btn">Holdings</a>
+             <a href="https://x.com/i/communities/1948131418355163543" target="_blank" class="nav-btn">Community</a>
+             <a href="https://x.com/CharizardSTR" target="_blank" class="nav-btn x-btn">
+                 <span class="x-icon">𝕏</span>
+             </a>
+         </nav>
+        
+        <header>
+            <img src="blackchar.gif" alt="Black Charizard" class="corner-gif corner-gif-left">
+            <img src="basechar.gif" alt="Base Charizard" class="corner-gif corner-gif-right">
+            <h1>
+                <span class="charizard-text">Charizard</span><span class="strategy-text">Strategy</span>
+            </h1>
+            <p class="tagline">ACCUMULATING CHARIZARDS SINCE 2005</p>
+        </header>
+
+        <div class="hero-section">
+            <img src="holocharizard.gif" alt="Holographic Charizard" class="hero-image neon-border">
+            
+            <!-- Contract Address Box -->
+                         <div class="ca-box">
+                 <div class="ca-label">$CSTR CONTRACT ADDRESS</div>
+                 <div class="ca-address" onclick="copyCA()" id="contractAddress">
+                     ................................bonk
+                 </div>
+                 <div class="ca-copy-text" id="copyText">Click to copy</div>
+             </div>
+        </div>
+
+                    <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">TOTAL CHARIZARDS</div>
+                <div class="stat-value counter" data-target="270">0</div>
+                <div class="stat-label">CARDS HODL'D</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">PORTFOLIO VALUE</div>
+                <div class="stat-value">$<span class="counter" data-target="7997500">0</span></div>
+                <div class="stat-label">USD</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">AVERAGE COST</div>
+                <div class="stat-value">$<span class="counter" data-target="29620">0</span></div>
+                <div class="stat-label">PER CARD</div>
+            </div>
+        </div>
+
+        <div class="holdings-section" id="holdings">
+            <h2 class="section-title">LEGENDARY HOLDINGS</h2>
+            <div class="card-grid">
+                <div class="card-item" onclick="openCard('1.jpg')">
+                    <img src="1.jpg" alt="1996 JP Test Print Charizard" class="card-image">
+                    <div class="card-name">1996 JP Test Print Charizard</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">3</span></div>
+                        <div>Total Value: <span class="card-value">$1,050,000</span></div>
+                        <div>Rarity: TEST PRINT</div>
+                    </div>
+                </div>
+                
+                <div class="card-item" onclick="openCard('2.jpg')">
+                    <img src="2.jpg" alt="2002 Legendary Collection Charizard" class="card-image">
+                    <div class="card-name">2002 Legendary Collection #3</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">25</span></div>
+                        <div>Total Value: <span class="card-value">$562,500</span></div>
+                        <div>Rarity: HOLO RARE</div>
+                    </div>
+                </div>
+                
+                <div class="card-item" onclick="openCard('3.jpg')">
+                    <img src="3.jpg" alt="2006 Gold Star Charizard" class="card-image">
+                    <div class="card-name">2006 Gold Star #100</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">15</span></div>
+                        <div>Total Value: <span class="card-value">$3,000,000</span></div>
+                        <div>Rarity: GOLD STAR</div>
+                    </div>
+                </div>
+                
+                <div class="card-item" onclick="openCard('4.jpg')">
+                    <img src="4.jpg" alt="1999 Base Shadowless Charizard" class="card-image">
+                    <div class="card-name">1999 Base Shadowless 1st Ed</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">50</span></div>
+                        <div>Total Value: <span class="card-value">$750,000</span></div>
+                        <div>Rarity: HOLO RARE</div>
+                    </div>
+                </div>
+                
+                <div class="card-item" onclick="openCard('5.jpg')">
+                    <img src="5.jpg" alt="2002 Crystal Charizard" class="card-image">
+                    <div class="card-name">2002 Crystal #89</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">35</span></div>
+                        <div>Total Value: <span class="card-value">$1,925,000</span></div>
+                        <div>Rarity: CRYSTAL</div>
+                    </div>
+                </div>
+                
+                <div class="card-item" onclick="openCard('6.jpg')">
+                    <img src="6.jpg" alt="1996 Bandai Carddass Charizard" class="card-image">
+                    <div class="card-name">1996 Bandai Carddass #6</div>
+                    <div class="card-details">
+                        <div>Quantity: <span class="card-quantity">142</span></div>
+                        <div>Total Value: <span class="card-value">$710,000</span></div>
+                        <div>Rarity: PROMO</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Holdings Pie Chart Section -->
+        <div class="holdings-section">
+            <h2 class="section-title">PORTFOLIO DISTRIBUTION</h2>
+            <canvas id="charizardPie" width="400" height="400" style="max-width: 400px; margin: 0 auto; display: block;"></canvas>
+        </div>
+
+        <!-- $CSTR Tokenomics Section -->
+        <div class="holdings-section" id="community">
+            <h2 class="section-title">$CSTR TOKENOMICS</h2>
+            <div style="background: rgba(255,68,68,0.1); border: 2px solid #ff4444; border-radius: 15px; padding: 30px; margin: 20px 0; text-align: center;">
+                <h3 style="color: #ff6666; margin-bottom: 20px; font-size: 16px;">🔥 1,000,000,000 $CSTR SUPPLY 🔥</h3>
+                
+                <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px; margin: 15px 0;">
+                    <h4 style="color: #ffaa00; font-size: 14px; margin-bottom: 15px;">TOKEN DISTRIBUTION</h4>
+                                         <p style="font-size: 11px; line-height: 1.6; margin-bottom: 15px;">
+                         Every <strong>30 minutes</strong>, <span style="color: #ff6666;">2 worthy applicants</span> receive $CSTR tokens from our treasury.<br>
+                         <strong>No collection required!</strong> Just explain what Charizard you want to buy and why you need our support.
+                     </p>
+                </div>
+                
+                                 <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px; margin: 15px 0;">
+                     <h4 style="color: #ffaa00; font-size: 14px; margin-bottom: 15px;">HOW TO QUALIFY</h4>
+                     <p style="font-size: 11px; line-height: 1.6;">
+                         1. <strong>Show your current Charizard collection</strong> <em>(optional, you don't need to own any)</em><br>
+                         2. <strong>Explain why you need supply sent to you and what card you want to buy</strong><br>
+                         3. <strong>Get verified by our team within a minute</strong><br>
+                         4. <strong>Receive tokens!</strong>
+                     </p>
+                 </div>
+                
+                                 <a href="https://x.com/i/communities/1948131418355163543" target="_blank" style="background: linear-gradient(45deg, #ff4444, #ffaa00); color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-size: 12px; display: inline-block; margin: 15px 0; font-weight: bold;">
+                     <span class="x-icon">𝕏</span> Apply for $CSTR Tokens
+                 </a>
+                
+                                 <div style="font-size: 10px; color: #aaa; margin-top: 15px;">
+                     Follow <strong>@CharizardSTR</strong> • Next distribution in <span style="color: #ff6666;" id="countdown">--:--</span>
+                 </div>
+            </div>
+        </div>
+
+        <div class="energy-section">
+            <div class="energy-container">
+                <img src="holocharizard.gif" alt="Holo Charizard" class="energy-gif">
+                <div class="energy-text">
+                    <p>POWERED BY LEGENDARY FIRE</p>
+                    <p>EST. PORTFOLIO VALUE: $7,997,500</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>CHARIZARDSTRATEGY © 2025</p>
+            <p>NOT FINANCIAL ADVICE. WE JUST REALLY LIKE CHARIZARDS.</p>
+        </footer>
+    </div>
+
+    <!-- Modal for card images -->
+    <div id="cardModal" class="modal">
+        <span class="close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" src="" alt="">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+        
+        counters.forEach(counter => {
+            const animate = () => {
+                const value = +counter.getAttribute('data-target');
+                const data = +counter.innerText;
+                const time = value / speed;
+                
+                if (data < value) {
+                    counter.innerText = Math.ceil(data + time);
+                    setTimeout(animate, 1);
+                } else {
+                    counter.innerText = value.toLocaleString();
+                }
+            }
+            
+            animate();
+        });
+        
+        // Random flicker effect for cards
+        setInterval(() => {
+            const cards = document.querySelectorAll('.card-item');
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            randomCard.style.borderColor = '#ff3333';
+            setTimeout(() => {
+                randomCard.style.borderColor = '#444';
+            }, 100);
+        }, 3000);
+
+        // Pie chart for Charizard holdings
+        const ctx = document.getElementById('charizardPie').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [
+                    '1996 JP Test Print (3)',
+                    '2002 Legendary Collection (25)',
+                    '2006 Gold Star #100 (15)',
+                    '1999 Base Shadowless 1st Ed (50)',
+                    '2002 Crystal #89 (35)',
+                    '1996 Bandai Carddass #6 (142)'
+                ],
+                datasets: [{
+                    data: [1050000, 562500, 3000000, 750000, 1925000, 710000],
+                    backgroundColor: [
+                        '#ff0000',
+                        '#ff4444',
+                        '#ff6666',
+                        '#ff8888',
+                        '#ffaaaa',
+                        '#ffcccc'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff',
+                            font: {
+                                family: "'Press Start 2P', cursive",
+                                size: 10
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.parsed.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Modal functionality
+        function openCard(imageSrc) {
+            const modal = document.getElementById('cardModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        // Close modal when clicking the X or outside the image
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('cardModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('cardModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Countdown timer for next distribution
+        function updateCountdown() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            
+            // Calculate time until next 30-minute mark
+            const nextDistribution = 30 - (minutes % 30);
+            const remainingSeconds = 60 - seconds;
+            
+            let displayMinutes = nextDistribution - 1;
+            let displaySeconds = remainingSeconds;
+            
+            if (remainingSeconds === 60) {
+                displayMinutes = nextDistribution;
+                displaySeconds = 0;
+            }
+            
+            const countdownElement = document.getElementById('countdown');
+            if (countdownElement) {
+                countdownElement.textContent = 
+                    `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
+        updateCountdown(); // Initial call
+
+                 // Copy contract address function
+         function copyCA() {
+             const address = "................................bonk";
+             navigator.clipboard.writeText(address).then(function() {
+                const copyText = document.getElementById('copyText');
+                copyText.textContent = "Copied!";
+                copyText.style.color = "#00ff00";
+                setTimeout(() => {
+                    copyText.textContent = "Click to copy";
+                    copyText.style.color = "#aaa";
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html> 
